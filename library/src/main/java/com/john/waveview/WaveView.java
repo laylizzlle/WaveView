@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 /**
- * Created by John on 2014/10/15.
+ * foked by laylizzlle on 2014/10/15.
  */
 public class WaveView extends LinearLayout {
     protected static final int LARGE = 1;
@@ -31,7 +31,8 @@ public class WaveView extends LinearLayout {
 
     private final int DEFAULT_ABOVE_WAVE_COLOR = Color.WHITE;
     private final int DEFAULT_BLOW_WAVE_COLOR = Color.WHITE;
-    private final int DEFAULT_PROGRESS = 80;
+    private final int DEFAULT_PROGRESS = 10;
+    private int max = 130;
 
     public WaveView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -40,7 +41,7 @@ public class WaveView extends LinearLayout {
         final TypedArray attributes = context.getTheme().obtainStyledAttributes(attrs, R.styleable.WaveView, R.attr.waveViewStyle, 0);
         mAboveWaveColor = attributes.getColor(R.styleable.WaveView_above_wave_color, DEFAULT_ABOVE_WAVE_COLOR);
         mBlowWaveColor = attributes.getColor(R.styleable.WaveView_blow_wave_color, DEFAULT_BLOW_WAVE_COLOR);
-        mProgress = attributes.getInt(R.styleable.WaveView_progress, DEFAULT_PROGRESS);
+        mProgress = attributes.getInt(R.styleable.WaveView_progressvalue, DEFAULT_PROGRESS);
         mWaveHeight = attributes.getInt(R.styleable.WaveView_wave_height, MIDDLE);
         mWaveMultiple = attributes.getInt(R.styleable.WaveView_wave_length, LARGE);
         mWaveHz = attributes.getInt(R.styleable.WaveView_wave_hz, MIDDLE);
@@ -48,8 +49,7 @@ public class WaveView extends LinearLayout {
 
         mWave = new Wave(context, null);
         mWave.initializeWaveSize(mWaveMultiple, mWaveHeight, mWaveHz);
-        mWave.setAboveWaveColor(mAboveWaveColor);
-        mWave.setBlowWaveColor(mBlowWaveColor);
+        getWaveColor();
         mWave.initializePainters();
 
         mSolid = new Solid(context, null);
@@ -59,12 +59,22 @@ public class WaveView extends LinearLayout {
         addView(mWave);
         addView(mSolid);
 
+        setMaximum(max);
         setProgress(mProgress);
     }
 
     public void setProgress(int progress) {
-        this.mProgress = progress > 100 ? 100 : progress;
+        this.mProgress = progress > max ? max : progress;
         computeWaveToTop();
+    }
+
+    public void setMaximum(int max){
+        this.max = max;
+    }
+
+    public void getWaveColor(){
+        mWave.setAboveWaveColor(mAboveWaveColor);
+        mWave.setBlowWaveColor(mAboveWaveColor);
     }
 
     @Override
@@ -75,8 +85,10 @@ public class WaveView extends LinearLayout {
         }
     }
 
+
+
     private void computeWaveToTop() {
-        mWaveToTop = (int) (getHeight() * (1f - mProgress / 100f));
+        mWaveToTop = (int) (getHeight() * (1f - mProgress / (float)max));
         ViewGroup.LayoutParams params = mWave.getLayoutParams();
         if (params != null) {
             ((LayoutParams) params).topMargin = mWaveToTop;
